@@ -18,3 +18,5 @@ Lancer la commande
 ```bash
 docker-compose up -d
 ```
+
+Puis pour se connecter, accéder à l'url suivante : http://localhost/
