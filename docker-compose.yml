@@ -19,7 +19,5 @@ services:
     volumes:
       - ./docker/db/gestion_produits.sql:/docker-entrypoint-initdb.d/gestion_produits.sql
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gestion_produits
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: password
