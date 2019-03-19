@@ -1,5 +1,4 @@
 <?php
-
     include 'connect.php';
 
     $action = (isset($_POST['action'])) ? $_POST['action'] : $_GET['action'];
@@ -14,6 +13,7 @@
             $PRO_prix = ($_POST['PRO_prix'] != '') ? "'".mysqli_real_escape_string($link, str_replace(',','.',$_POST['PRO_prix']))."'" : 'null';
 
             $sql = "INSERT INTO produits (PRO_lib, PRO_description, PRO_prix) VALUES ($PRO_lib,$PRO_description,$PRO_prix)";
+
             if (mysqli_query($link,$sql)) {
 
                 $PRO_id = mysqli_insert_id($link);
@@ -25,8 +25,15 @@
                         $md5 = md5_file($tmp_name);
                         $name = $PRO_id."-".$md5.".".$extension;
                         $url = "uploads/$name";
-                        move_uploaded_file($tmp_name, $url);
 
+                        $result = $s3Client->putObject([
+                            'Bucket' => $bucket,
+                            'Key' => $name,
+                            'SourceFile' => $tmp_name,
+                            'ACL'    => 'public-read'
+                        ]);
+                        $url = $result['ObjectURL'];
+                        //move_uploaded_file($tmp_name, $url);
                         $sql = "INSERT INTO ressources (RE_type,RE_url,PRO_id) VALUES ('img','$url','$PRO_id')";
                         mysqli_query($link,$sql);
 
@@ -58,8 +65,15 @@
                         $md5 = md5_file($tmp_name);
                         $name = $_POST['PRO_id']."-".$md5.".".$extension;
                         $url = "uploads/$name";
-                        move_uploaded_file($tmp_name, $url);
 
+                        $result = $s3Client->putObject([
+                            'Bucket' => $bucket,
+                            'Key' => $name,
+                            'SourceFile' => $tmp_name,
+                            'ACL'    => 'public-read'
+                        ]);
+                        $url = $result['ObjectURL'];
+                        //move_uploaded_file($tmp_name, $url);
                         $sql = "INSERT INTO ressources (RE_type,RE_url,PRO_id) VALUES ('img','$url',$PRO_id)";
                         mysqli_query($link,$sql);
 
@@ -85,9 +99,13 @@
                     
                     $sql = "DELETE FROM ressources WHERE RE_id = '$RE_id'";
                     if (mysqli_query($link, $sql)) {
-                        if (file_exists($ressource['RE_url'])) {
-                            unlink($ressource['RE_url']);
-                        }
+                        $result = $s3Client->deleteObject([
+                            'Bucket' => $bucket,
+                            'Key' => $ressource['RE_url']
+                        ]);
+                        /*if (file_exists($ressource['RE_url'])) {
+                            //unlink($ressource['RE_url']);
+                        }*/
                         echo 'OK';
                     } else {
                         echo 'NOK';
@@ -115,9 +133,13 @@
                             $RE_id = $ressource['RE_id'];
                             $sql = "DELETE FROM ressources WHERE RE_id = $RE_id";
                             if (mysqli_query($link, $sql)) {
-                                if (file_exists($ressource['RE_url'])) {
+                                $result = $s3Client->deleteObject([
+                                    'Bucket' => $bucket,
+                                    'Key' => $ressource['RE_url']
+                                ]);
+                                /*if (file_exists($ressource['RE_url'])) {
                                     unlink($ressource['RE_url']);
-                                }
+                                }*/
                             }
                         }
                     }
