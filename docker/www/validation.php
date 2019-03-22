@@ -101,7 +101,7 @@
                     if (mysqli_query($link, $sql)) {
                         $result = $s3Client->deleteObject([
                             'Bucket' => $bucket,
-                            'Key' => $ressource['RE_url']
+                            'Key' => basename($ressource['RE_url'])
                         ]);
                         /*if (file_exists($ressource['RE_url'])) {
                             //unlink($ressource['RE_url']);
@@ -135,7 +135,7 @@
                             if (mysqli_query($link, $sql)) {
                                 $result = $s3Client->deleteObject([
                                     'Bucket' => $bucket,
-                                    'Key' => $ressource['RE_url']
+                                    'Key' => basename($ressource['RE_url'])
                                 ]);
                                 /*if (file_exists($ressource['RE_url'])) {
                                     unlink($ressource['RE_url']);
